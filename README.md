@@ -1,10 +1,10 @@
-# ai
-1. Input Translation Outside the Model/Token Layer
+# AI Optimizations 
+##1. Input Translation Outside the Model/Token Layer
 
 Before anything reaches the model as tokens, it goes through a normalization layer that resolves entities, disambiguates references and turns loose text into a constrained intent schema. For example that covers airport and airline code resolution (example:Booking.com) locale and language normalization into a fixed set of intents. All of that happens in the intermediate layer, not inside the prompt, so it costs zero model tokens. By the time the model sees anything, it's already a clean, resolved payload not raw customer text it has to guess at.
 
 
-2. Token, Context and Cache Management - AI don't need to be sent in full on every single message
+##2. Token, Context and Cache Management - AI don't need to be sent in full on every single message
 
 System prompts and tool schemas get hashed and registered against a cached content object with a time-to-live, so repeated calls inside that window reuse the cached version instead of resending the whole instruction set every single turn. Hits and misses are tracked separately, and there's a fallback to sending everything inline if a model or context falls below the Gemini -as the provider minimum cacheable size. The result is lower input token cost and faster response times after the first turn, since the static part of the prompt isn't being reprocessed from scratch every time. This follows the caching approach both Anthropic and Google Cloud document, referenced below.  
 Cached reads run at roughly 10% of the normal input token rate; cache writes cost roughly 1.25x. 
@@ -12,7 +12,7 @@ Time-to-live: 55 minutes (3,300 seconds), auto-refreshed once the entry is withi
 Minimum cache:  Google Gemini: 1,024 / 2,048 tiers depending on model. Below this, the cache annotation is silently ignored.
 
 
-3. Compression- don't feed the AI everything a data source sends back
+##3. Compression- don't feed the AI everything a data source sends back
 
 Conversation history and tool results go through compression before the next model call. Instead of dumping raw API responses (flight results, hotel inventory, place details) straight into context, I strip it down to the fields the current request actually needs, cut redundant metadata and summarize older turns once they age out of the working window. That keeps context length low and predictable no matter how long the session runs, which lines up with the research on long-context degradation cited below and keeps cost from quietly climbing as a conversation gets longer.
 History /Age: Anything older than 16 entries back has its raw tool-result payload (the full flights/hotels/activities JSON) replaced with a short marker naming the tool that ran. The turn itself (what was asked, what was said) is never deleted, only the bulky payload inside older tool-result turns.
