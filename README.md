@@ -1,4 +1,12 @@
 # AI Optimizations 
+![Alternative text for screen readers](monitor.png)
+![Alternative text for screen readers](monitor6.png)
+![Alternative text for screen readers](monitor3.png)
+![Alternative text for screen readers](monitor4.png)
+![Alternative text for screen readers](monitor5.png)
+![Alternative text for screen readers](monitor2.png)
+
+
 1. Input Translation Outside the Model/Token Layer
 
 Before anything reaches the model as tokens, it goes through a normalization layer that resolves entities, disambiguates references and turns loose text into a constrained intent schema. For example that covers airport and airline code resolution (example:Booking.com) locale and language normalization into a fixed set of intents. All of that happens in the intermediate layer, not inside the prompt, so it costs zero model tokens. By the time the model sees anything, it's already a clean, resolved payload not raw customer text it has to guess at.
