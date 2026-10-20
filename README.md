@@ -1,5 +1,5 @@
 # AI Optimizations 
-![Alternative text for screen readers](monitor.png)
+![Project Logo](monitor.png)
 ![Alternative text for screen readers](monitor6.png)
 ![Alternative text for screen readers](monitor3.png)
 ![Alternative text for screen readers](monitor4.png)
